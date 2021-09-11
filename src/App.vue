@@ -1,27 +1,40 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js + TypeScript App"/>
+  <Button class="position-fixed t-30vh r-0 bg-red z-index-999" @click="changeDrawer">
+  聚合服务
+</Button>
+  <Drawer v-model:visible="controlDrawer" >
+    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Illum perspiciatis error unde dolorem, tempore nemo quas dicta eaque possimus, maiores voluptate repellendus, adipisci officia hic rem tenetur mollitia molestias? In.</p>
+  </Drawer>
 </template>
 
-<script lang="ts">
-import { Options, Vue } from 'vue-class-component'
-import HelloWorld from './components/HelloWorld.vue'
+<script lang="ts" setup>
+import './style/auto.css'
+import 'ant-design-vue/dist/antd.css'
+import { Drawer, Button } from 'ant-design-vue'
+import { useToggle } from '@vueuse/core'
+import apis from '@/http/apis'
+import { onMounted } from 'vue'
 
-@Options({
-  components: {
-    HelloWorld
+const [controlDrawer, changeDrawer] = useToggle()
+// const sessionList = []
+async function getAllSession (end_ts = '') {
+  console.log('hahahah')
+  const params = {
+    session_type: 1,
+    group_fold: 1,
+    unfollow_fold: 0,
+    sort_rule: 2,
+    build: 0,
+    mobi_app: 'web',
+    size: 100,
+    end_ts
   }
-})
-export default class App extends Vue {}
+  const { session_list } = await apis.getSession(params)
+  console.log(session_list)
+}
+onMounted(getAllSession.bind(null))
 </script>
 
 <style lang="less">
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
+
 </style>
