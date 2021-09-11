@@ -1,10 +1,12 @@
 <template>
-  <Button class="position-fixed t-30vh r-0 bg-red z-index-999" @click="changeDrawer">
+  <Button class="position-fixed t-30vh r-0 bg-red" @click="changeDrawer">
   聚合服务
 </Button>
-  <Drawer v-model:visible="controlDrawer" >
-    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Illum perspiciatis error unde dolorem, tempore nemo quas dicta eaque possimus, maiores voluptate repellendus, adipisci officia hic rem tenetur mollitia molestias? In.</p>
-  </Drawer>
+  <Drawer width="600" v-model:visible="controlDrawer" >
+    <div class="p-b-8" v-for="item of unReadChatInfoArr" :key="item.talker_id">
+      {{item}}
+    </div>
+</Drawer>
 </template>
 
 <script lang="ts" setup>
@@ -14,11 +16,11 @@ import { Drawer, Button } from 'ant-design-vue'
 import { useToggle } from '@vueuse/core'
 import apis from '@/http/apis'
 import { onMounted } from 'vue'
+import { IGetSessionInterFace } from './interface/getSessionInterFace'
 
 const [controlDrawer, changeDrawer] = useToggle()
-// const sessionList = []
-async function getAllSession (end_ts = '') {
-  console.log('hahahah')
+let unReadChatInfoArr:IGetSessionInterFace['session_list'] = []
+async function getAllSession (end_ts:null|number = null) {
   const params = {
     session_type: 1,
     group_fold: 1,
@@ -29,8 +31,11 @@ async function getAllSession (end_ts = '') {
     size: 100,
     end_ts
   }
-  const { session_list } = await apis.getSession(params)
-  console.log(session_list)
+  const { session_list = [] } = await apis.getSession(params)
+  unReadChatInfoArr = unReadChatInfoArr.concat(session_list?.filter(_ => _) ?? [])
+  if (session_list?.some(info => info.unread_count > 0)) {
+    getAllSession(session_list[session_list.length - 1].session_ts)
+  }
 }
 onMounted(getAllSession.bind(null))
 </script>
